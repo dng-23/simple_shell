@@ -191,7 +191,7 @@ char *_getline()
 
 	line = malloc((line_length + 1) * sizeof(char));
 
-	strncpy(line, buffer + position, line_length);
+	_strncpy(line, buffer + position, line_length);
 		line[line_length] = '\0';
 	position += line_length;
 	return (line);

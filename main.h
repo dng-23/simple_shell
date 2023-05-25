@@ -11,6 +11,7 @@
 
 char *_strcat(char *dest, const char *src);
 char *_strcpy(char *dest, char *src);
+char *_strncpy(char *dest, char *src, int n);
 int _strcmp(char *s1, char *s2);
 int _atoi(char *str);
 int check_command_in_path(char *command, char **arr);
