@@ -14,9 +14,9 @@ int main(int __attribute__((__unused__)) argc, char __attribute__((__unused__))
 		**av, char **envp)
 {
 	char *buffer = NULL, *cmd[ARGS];
-	size_t bufsize = 0;
+	/*size_t bufsize = 0;*/
 	int check = 0;
-	ssize_t line_size;
+	/*ssize_t line_size;*/
 	builtin_cmd builtins[] = {
 		{"cd", change_directory, NULL},
 		{"env", shell_env, NULL},
@@ -28,8 +28,8 @@ int main(int __attribute__((__unused__)) argc, char __attribute__((__unused__))
 	while (1)
 	{
 		fflush(stdout);
-		line_size = _getline(&buffer, &bufsize, STDIN_FILENO);
-		if (line_size == -1)
+		buffer = _getline();
+		if (buffer == NULL)
 			break;
 		check = 0;
 		split_string(buffer, cmd, ";");
@@ -155,48 +155,44 @@ void split_string(char *buffer, char **argv, char *delim)
 
 /**
  *_getline - custome getline
- * @lineptr: string recieved
- * @n: size of string to recieve
- * @fd: file descriptor
- * Return: number of read size or -1
+ * Return: line
  */
-ssize_t _getline(char **lineptr, size_t *n, int fd)
+char *_getline()
 {
-	ssize_t read_size, i = 0;
-	static char c;
-	*n = MAX_SIZE;
+	#define BUFFER_SIZE 1024
+	static char buffer[BUFFER_SIZE];
+	static int position;
+	static ssize_t bytes_read;
+	char *line;
+	ssize_t line_length;
+	int newline_position, i;
 
-	if (lineptr == NULL)
-		return (-1);
-	if (*lineptr == NULL || *n == 0)
+	if (position >= bytes_read)
 	{
-		*lineptr = malloc(sizeof(char) * MAX_SIZE);
-		if (!*lineptr)
-			return (-1);
-		*n = MAX_SIZE;
+		position = 0;
+		bytes_read = read(STDIN_FILENO, buffer, BUFFER_SIZE);
 	}
-	while (1)
+	if (bytes_read <= 0)
+		return (NULL);
+	newline_position = -1;
+	for (i = position; i < bytes_read; i++)
 	{
-		read_size = read(fd, &c, 1);
-		if (read_size == -1)
-			perror("Error ");
-
-		if (read_size == 0)
+		if (buffer[i] == '\n')
 		{
-			if (i > 0)
-			{
-				(*lineptr)[i] = '\0';
-				return (-1);
-			}
-			else
-				return (-1);
-		}
-		(*lineptr)[i] = c;
-		i++;
-		if (c == '\n')
-		{
-			(*lineptr)[i] = '\0';
-			return (i);
+			newline_position = i;
+			break;
 		}
 	}
+
+	if (newline_position != -1)
+		line_length = newline_position - position + 1;
+	else
+		line_length = bytes_read - position;
+
+	line = malloc((line_length + 1) * sizeof(char));
+
+	strncpy(line, buffer + position, line_length);
+		line[line_length] = '\0';
+	position += line_length;
+	return (line);
 }

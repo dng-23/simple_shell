@@ -15,7 +15,7 @@ int _strcmp(char *s1, char *s2);
 int _atoi(char *str);
 int check_command_in_path(char *command, char **arr);
 void split_string(char *buffer, char **argv, char *delim);
-ssize_t _getline(char **lineptr, size_t *n, int fd);
+char *_getline();
 char *my_strtok(char *str, const char *delim);
 
 void shell_env(char **, char **);
