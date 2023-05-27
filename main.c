@@ -29,8 +29,8 @@ int split_command(char* command) {
     return i;
 }
 
-void display_prompt() {
-    printf("$ ");
+void display_prompt()
+{
     fflush(stdout);
 }
 
